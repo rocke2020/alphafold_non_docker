@@ -2,3 +2,5 @@
 *.jpg
 *.gif
 *.log
+example/*.fasta
+dummy_test/

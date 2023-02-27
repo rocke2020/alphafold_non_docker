@@ -15,7 +15,7 @@ pos_only_seqs_pair_df_file = leiyipin_dir / f'peptide_protein_interaction_v{vers
 out_dir = Path('/mnt/sdc/af_input')
 
 
-def get_the_protein_pdb_seq(id=0):
+def get_the_protein_pdb_seq(id=1):
     """  
     Returns:
         fasta file
@@ -23,8 +23,10 @@ def get_the_protein_pdb_seq(id=0):
     unique_positive_data = pd.read_csv(pos_only_seqs_pair_df_file)
     ic(unique_positive_data.columns)
     pdb_id, pep_chain, prot_chain, pep_seq, prot_seq = unique_positive_data.iloc[id].tolist()
-    out_file = out_dir / f'{pdb_id}_{prot_chain}.fasta'
+    out_file = out_dir / f'{pdb_id}_{pep_chain}_{prot_chain}.fasta'
+    ic(out_file.name)
     with open(out_file, 'w', encoding='utf-8') as f:
+        f.write(f'>{pdb_id}_{pep_chain}\n{pep_seq}\n')
         f.write(f'>{pdb_id}_{prot_chain}\n{prot_seq}\n')
 
 get_the_protein_pdb_seq()
