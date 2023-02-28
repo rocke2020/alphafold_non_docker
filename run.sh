@@ -7,4 +7,5 @@ nohup ./run_alphafold.sh \
     -d /home/qcdong/af_data \
     -o /mnt/sdc/af_out \
     -t 2022-01-01 \
+    -a 1
     > run.log 2>&1 &
