@@ -3,4 +3,4 @@
 *.gif
 *.log
 example/*.fasta
-dummy_test/
+/dummy_test
