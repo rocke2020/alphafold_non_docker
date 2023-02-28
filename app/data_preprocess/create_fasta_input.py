@@ -14,11 +14,12 @@ leiyipin_dir = Path('/mnt/sda/bio_drug_corpus/ppi/ppi-leiyipin/peptide_protein_i
 pos_only_seqs_pair_df_file = leiyipin_dir / f'peptide_protein_interaction_v{version}_unique.csv'
 
 out_dir = Path('/mnt/sdc/af_input')
-test_data_dir = Path('/mnt/sdb/bio_drug_corpus/ppi/Improving Peptide-Protein Docking with AlphaFold-Multimer using Forced Sampling')
+out_dir.mkdir(exist_ok=1)
+test_data_dir = Path('/mnt/sda/bio_drug_corpus/ppi/Improving Peptide-Protein Docking with AlphaFold-Multimer using Forced Sampling')
 gold_positive_test_file = test_data_dir / 'test-complex-num112-all positive.CSV'
 gold_negative_test_file = test_data_dir / 'test-complex-num672-1pos5neg.CSV'
 
-test_data_dir = Path('/mnt/sdb/bio_drug_corpus/ppi/Improving Peptide-Protein Docking with AlphaFold-Multimer using Forced Sampling')
+test_data_dir = Path('/mnt/sda/bio_drug_corpus/ppi/Improving Peptide-Protein Docking with AlphaFold-Multimer using Forced Sampling')
 pdb_seqs_dir = test_data_dir / 'pdb_seqs'
 gold_pos_test_pdb_seqs_file = pdb_seqs_dir / 'positive112.csv'
 gold_neg_test_pdb_seqs_file = pdb_seqs_dir / 'negative560.csv'
