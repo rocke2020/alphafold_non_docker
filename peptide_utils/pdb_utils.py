@@ -149,7 +149,7 @@ def write_undownloaded_ids_to_file(un_downloaded_pdb_ids, out_file='data_process
 
 
 def create_seqs_from_pdb_id_and_chain(
-    id_and_chains:List[List[str, str, str]], only_natural_in_protein=True, check_id='6qmp', peptide_length_filter=True):
+    id_and_chains, only_natural_in_protein=True, check_id='6qmp', peptide_length_filter=True):
     """  """
     items = []
     for pdb_id, pep_chain, prot_chain in tqdm(id_and_chains):

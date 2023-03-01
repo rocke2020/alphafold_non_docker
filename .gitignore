@@ -4,3 +4,4 @@
 *.log
 example/*.fasta
 /dummy_test
+data

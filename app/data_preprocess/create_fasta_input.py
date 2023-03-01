@@ -9,6 +9,7 @@ from icecream import ic
 ic.configureOutput(includeContext=True, argToStringFunction=lambda _: str(_))
 sys.path.append(os.path.abspath('.'))
 from peptide_utils.pep_utils import get_not_natural_aas_only_supper
+from peptide_utils.pdb_utils import get_pdb_seq_from_pdb_file
 from utils.log_util import logger
 
 
@@ -34,9 +35,11 @@ gold_pos_pdb_fasta_seqs_file = fasta_seqs_dir / 'positive112.csv'
 gold_neg_pdb_fasta_seqs_file = fasta_seqs_dir / 'negative560.csv'
 gold_pos_pdb_fasta_seqs_natural_aa_file = fasta_seqs_dir / 'positive112_natural_aa.csv'
 gold_neg_pdb_fasta_seqs_natural_aa_file = fasta_seqs_dir / 'negative560_natural_aa.csv'
+camp_pos_pdb_fasta_seqs_file = fasta_seqs_dir / f'camp_pos_pdb_fasta_seqs.csv'
+gold_human_mid_len_pos_pdb_fasta_seqs_natural_aa_file = fasta_seqs_dir / 'positive112_natural_aa_human_200_300mer.csv'
 
 
-def create_camp_all_positive_input(id=1):
+def create_camp_positive_pdb_seqs(id=1, check_natural=True):
     """
     Returns:
         fasta file
@@ -44,53 +47,40 @@ def create_camp_all_positive_input(id=1):
     unique_positive_data = pd.read_csv(pos_only_seqs_pair_df_file)
     ic(unique_positive_data.columns)
     pdb_id, pep_chain, prot_chain, pep_seq, prot_seq = unique_positive_data.iloc[id].tolist()
-    out_file = out_dir / f'{pdb_id}_{prot_chain}_{pep_chain}.fasta'
-    ic(out_file.name)
-    with open(out_file, 'w', encoding='utf-8') as f:
-        f.write(f'>{pdb_id}_{prot_chain}\n{prot_seq}\n')
-        f.write(f'>{pdb_id}_{pep_chain}\n{pep_seq}\n')
-    is_peq_seq_natural, is_prot_seq_natural = check_seq_pair_natural(pep_seq, prot_seq)
+
+    out_file = out_dir / f'camp_{pdb_id}_{prot_chain}_{pep_chain}_pos.fasta'
+    save_seq_pair(check_natural, prot_chain, pep_chain, pdb_id, pdb_id, out_file, pep_seq, prot_seq)
 
 
-def create_gold_pdb_fasta_seq_input(id=0, select_positive=True, check_natural=False):
-    """  column names: prot_pdb_fasta_seq, pep_pdb_fasta_seq.
-
-    Seq: prot first.
+def create_camp_positive_pdb_fasta_seqs(id=1, check_natural=True):
     """
-    if select_positive:
-        file = gold_pos_pdb_fasta_seqs_natural_aa_file
-    else:
-        file = gold_neg_pdb_fasta_seqs_natural_aa_file
+    Returns:
+        fasta file
+    """
+    unique_positive_data = pd.read_csv(camp_pos_pdb_fasta_seqs_file)
+    ic(unique_positive_data.columns)
+    row = unique_positive_data.iloc[id]
+    pdb_id, pep_chain, prot_chain, pep_seq, prot_seq, pep_pdb_fasta_seq, prot_pdb_fasta_seq = row.tolist()
 
-    # pos, 'pdb_id', 'prot_chain', 'pep_chain'
-    # neg, 'pdb_id_prot', 'prot_chain', 'pdb_id_pep', 'pep_chain'
-    df = pd.read_csv(file)
-    ic(df.head())
+    out_file = out_dir / f'camp_{pdb_id}_{prot_chain}_{pep_chain}_pdb_fasta_pos.fasta'
+    save_seq_pair(check_natural, prot_chain, pep_chain, pdb_id, pdb_id, out_file, pep_pdb_fasta_seq, prot_pdb_fasta_seq)
 
-    row = df.iloc[id]
 
-    prot_chain = row['prot_chain']
-    pep_chain = row['pep_chain']
-    if select_positive:
-        pdb_id_prot = row['pdb_id']
-        pdb_id_pep = pdb_id_prot
-        out_file = out_dir / f'{pdb_id_prot}_{prot_chain}_{pep_chain}_pdb_fasta_pos.fasta'
-    else:
-        pdb_id_prot = row['pdb_id_prot']
-        pdb_id_pep = row['pdb_id_pep']
-        out_file = out_dir / f'{pdb_id_prot}_{prot_chain}_{pdb_id_pep}_{pep_chain}_pdb_fasta_neg.fasta'
-    pep_seq = row['pep_pdb_fasta_seq']
-    prot_seq = row['prot_pdb_fasta_seq']
-    
+def save_seq_pair(check_natural, prot_chain, pep_chain, pdb_id_prot, pdb_id_pep, out_file:Path, pep_seq, prot_seq):
+    """ prot seq is first """
+    if out_file.is_file():
+        logger.info(f'out_file {out_file} exits, not overwite')
+        return
     if check_natural:
         is_peq_seq_natural, is_prot_seq_natural = check_seq_pair_natural(pep_seq, prot_seq)
-        if is_peq_seq_natural and is_prot_seq_natural:
-            logger.info('all natural aa in both seqs')
-
-            ic(out_file.name)
-            with open(out_file, 'w', encoding='utf-8') as f:
-                f.write(f'>{pdb_id_prot}_{prot_chain}\n{prot_seq}\n')
-                f.write(f'>{pdb_id_pep}_{pep_chain}\n{pep_seq}\n')
+    else:
+        is_peq_seq_natural, is_prot_seq_natural = True, True
+    if is_peq_seq_natural and is_prot_seq_natural:
+        logger.info('all natural aa in both seqs')
+        ic(out_file.name)
+        with open(out_file, 'w', encoding='utf-8') as f:
+            f.write(f'>{pdb_id_prot}_{prot_chain}\n{prot_seq}\n')
+            f.write(f'>{pdb_id_pep}_{pep_chain}\n{pep_seq}\n')
 
 
 def check_seq_pair_natural(pep_seq, prot_seq):
@@ -107,8 +97,110 @@ def check_seq_pair_natural(pep_seq, prot_seq):
     return is_peq_seq_natural, is_prot_seq_natural
 
 
+def create_gold_human_pdb_fasta_seq_input(number=2, select_positive=True, check_natural=True):
+    """  Actually only postive, column names: prot_pdb_fasta_seq, pep_pdb_fasta_seq.
+    
+    Seq: prot first.
+    """
+    file = gold_human_mid_len_pos_pdb_fasta_seqs_natural_aa_file
+
+    # pos, 'pdb_id', 'prot_chain', 'pep_chain'
+    df = pd.read_csv(file)
+    ic(df.head(1))
+    ic(df.columns)
+    ic(len(df))
+
+    for id in range(number):
+        row = df.iloc[id]
+        prot_chain = row['prot_chain']
+        pep_chain = row['pep_chain']
+        if select_positive:
+            pdb_id_prot = row['pdb_id']
+            pdb_id_pep = pdb_id_prot
+            out_file = out_dir / f'{pdb_id_prot}_{prot_chain}_{pep_chain}_pdb_fasta_pos_human.fasta'
+        else:
+            pdb_id_prot = row['pdb_id_prot']
+            pdb_id_pep = row['pdb_id_pep']
+            out_file = out_dir / f'{pdb_id_prot}_{prot_chain}_{pdb_id_pep}_{pep_chain}_pdb_fasta_neg_human.fasta'
+        pep_seq = row['pep_pdb_fasta_seq']
+        prot_seq = row['prot_pdb_fasta_seq']
+        logger.info(f'{pdb_id_prot}_{prot_chain}_{pdb_id_pep}_{pep_chain}')
+        save_seq_pair(check_natural, prot_chain, pep_chain, pdb_id_prot, pdb_id_pep, out_file, pep_seq, prot_seq)
+
+
+def create_gold_pdb_fasta_seq_input(id=0, select_positive=True, check_natural=True):
+    """  column names: prot_pdb_fasta_seq, pep_pdb_fasta_seq.
+
+    Seq: prot first.
+    """
+    if select_positive:
+        file = gold_pos_pdb_fasta_seqs_natural_aa_file
+    else:
+        file = gold_neg_pdb_fasta_seqs_natural_aa_file
+
+    # pos, 'pdb_id', 'prot_chain', 'pep_chain'
+    # neg, 'pdb_id_prot', 'prot_chain', 'pdb_id_pep', 'pep_chain'
+    df = pd.read_csv(file)
+    ic(df.head())
+
+    row = df.iloc[id]
+    prot_chain = row['prot_chain']
+    pep_chain = row['pep_chain']
+    if select_positive:
+        pdb_id_prot = row['pdb_id']
+        pdb_id_pep = pdb_id_prot
+        out_file = out_dir / f'{pdb_id_prot}_{prot_chain}_{pep_chain}_pdb_fasta_pos.fasta'
+    else:
+        pdb_id_prot = row['pdb_id_prot']
+        pdb_id_pep = row['pdb_id_pep']
+        out_file = out_dir / f'{pdb_id_prot}_{prot_chain}_{pdb_id_pep}_{pep_chain}_pdb_fasta_neg.fasta'
+    pep_seq = row['pep_pdb_fasta_seq']
+    prot_seq = row['prot_pdb_fasta_seq']
+
+    save_seq_pair(check_natural, prot_chain, pep_chain, pdb_id_prot, pdb_id_pep, out_file, pep_seq, prot_seq)
+
+
+def create_gold_pdb_seq_input(pdb_id_chain: str, positive=None, check_natural=True):
+    """  """
+    items = pdb_id_chain.split('_')
+    if len(items) == 3:
+        pdb_id_prot, prot_chain, pep_chain = items
+        pdb_id_pep = pdb_id_prot
+        if positive is None:
+            positive = True
+    elif len(items) == 4:
+        pdb_id_prot, prot_chain, pdb_id_pep, pep_chain = items
+        if positive is None:
+            positive = False
+    prot_seq = get_pdb_seq_from_pdb_file(pdb_id_prot, prot_chain)
+    pep_seq = get_pdb_seq_from_pdb_file(pdb_id_pep, pep_chain)
+    if positive:
+        if len(items) == 3:
+            out_file = out_dir / f'{pdb_id_prot}_{prot_chain}_{pep_chain}_pos.fasta'
+        else:
+            out_file = out_dir / f'{pdb_id_prot}_{prot_chain}_{pdb_id_pep}_{pep_chain}_pos.fasta'
+    else:
+        out_file = out_dir / f'{pdb_id_prot}_{prot_chain}_{pdb_id_pep}_{pep_chain}_neg.fasta'
+    save_seq_pair(check_natural, prot_chain, pep_chain, pdb_id_prot, pdb_id_pep, out_file, pep_seq, prot_seq)
+
+
+def batch_create_gold_pdb_seq_input():
+    """  """
+    pdb_id_chains = [
+        # '6peu_A_M',
+        # '6s6q_A_6mf6_C',
+        '6i51_H_I',
+        '6itm_A_B'
+    ]
+    for pdb_id_chain in pdb_id_chains:
+        create_gold_pdb_seq_input(pdb_id_chain)
+
 
 if __name__ == "__main__":
     # create_gold_pdb_fasta_seq_input(id=0, select_positive=True)
-    create_gold_pdb_fasta_seq_input(id=0, select_positive=0, check_natural=True)
-    # create_camp_all_positive_input()
+    # create_gold_pdb_fasta_seq_input(id=0, select_positive=0, check_natural=True)
+    # create_camp_positive_pdb_seqs()
+    # create_camp_positive_pdb_fasta_seqs()
+    batch_create_gold_pdb_seq_input()
+    # create_gold_human_pdb_fasta_seq_input()
+    pass
