@@ -18,6 +18,11 @@ for file_dir in orig_out_dir.iterdir():
             file.stem == 'timings'
         ):
             new_file = new_sub_dir / file.name
-            shutil.copyfile(file, new_file)
+            if not new_file.is_file():
+                shutil.copyfile(file, new_file)
+            if file.stem == 'ranked_0':
+                _file = new_sub_dir / f'ranked_0-{file_dir.name}.pdb'
+                if not _file.is_file():
+                    shutil.copyfile(file, _file)
 
 print('end')
