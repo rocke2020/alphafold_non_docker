@@ -1,0 +1,1 @@
+nohup python app/postprocess/cal_plddt.py > app/postprocess/cal_plddt.log 2>&1 &

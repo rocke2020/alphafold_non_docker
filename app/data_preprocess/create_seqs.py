@@ -201,5 +201,5 @@ if __name__ == "__main__":
     # check_fasta_seqs()
     # create_fasta_seqs_for_camp_positive()
     # select_gold_human_pdb_fasta_seqs()
-    # create_uniprot_seqs(gold_human_mid_len_pos_pdb_fasta_seqs_natural_aa_file)
+    create_uniprot_seqs(gold_human_mid_len_pos_pdb_fasta_seqs_natural_aa_file)
     ic('end')
