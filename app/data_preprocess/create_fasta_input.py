@@ -37,9 +37,10 @@ gold_pos_pdb_fasta_seqs_natural_aa_file = fasta_seqs_dir / 'positive112_natural_
 gold_neg_pdb_fasta_seqs_natural_aa_file = fasta_seqs_dir / 'negative560_natural_aa.csv'
 camp_pos_pdb_fasta_seqs_file = fasta_seqs_dir / f'camp_pos_pdb_fasta_seqs.csv'
 gold_human_mid_len_pos_pdb_fasta_seqs_natural_aa_file = fasta_seqs_dir / 'positive112_natural_aa_human_200_300mer.csv'
+camp_pos_pdb_fasta_seqs_uniprot_file = fasta_seqs_dir / f'camp_pos_pdb_fasta_seqs_uniprot.csv'
 
 
-def create_camp_positive_pdb_seqs(id=1, check_natural=True):
+def create_camp_positive_pdb_seqs(id=0, check_natural=True):
     """
     Returns:
         fasta file
@@ -52,7 +53,7 @@ def create_camp_positive_pdb_seqs(id=1, check_natural=True):
     save_seq_pair(check_natural, prot_chain, pep_chain, pdb_id, pdb_id, out_file, pep_seq, prot_seq)
 
 
-def create_camp_positive_pdb_fasta_seqs(id=1, check_natural=True):
+def create_camp_positive_pdb_fasta_seqs(id=0, check_natural=True):
     """
     Returns:
         fasta file
@@ -64,6 +65,17 @@ def create_camp_positive_pdb_fasta_seqs(id=1, check_natural=True):
 
     out_file = out_dir / f'camp_{pdb_id}_{prot_chain}_{pep_chain}_pdb_fasta_pos.fasta'
     save_seq_pair(check_natural, prot_chain, pep_chain, pdb_id, pdb_id, out_file, pep_pdb_fasta_seq, prot_pdb_fasta_seq)
+
+
+def create_camp_positive_uniprot_protein_seqs(id=0, check_natural=True):
+    """  """
+    unique_positive_data = pd.read_csv(camp_pos_pdb_fasta_seqs_uniprot_file)
+    ic(unique_positive_data.columns)
+    row = unique_positive_data.iloc[id]
+    pdb_id, pep_chain, prot_chain, pep_seq, prot_seq, pep_pdb_fasta_seq, prot_pdb_fasta_seq, uniprot_seq = row.tolist()
+
+    out_file = out_dir / f'camp_{pdb_id}_{prot_chain}_{pep_chain}_pdb_fasta_uniprot_pos.fasta'
+    save_seq_pair(check_natural, prot_chain, pep_chain, pdb_id, pdb_id, out_file, pep_pdb_fasta_seq, uniprot_seq)
 
 
 def save_seq_pair(check_natural, prot_chain, pep_chain, pdb_id_prot, pdb_id_pep, out_file:Path, pep_seq, prot_seq):
@@ -189,18 +201,25 @@ def batch_create_gold_pdb_seq_input():
     pdb_id_chains = [
         # '6peu_A_M',
         # '6s6q_A_6mf6_C',
-        '6i51_H_I',
-        '6itm_A_B'
+        # '6i51_H_I',
+        # '6itm_A_B',
+        '5qtu_A_6kac_V',
     ]
     for pdb_id_chain in pdb_id_chains:
         create_gold_pdb_seq_input(pdb_id_chain)
 
 
+def create_create_camp_positive(id=2):
+    """  """
+    create_camp_positive_pdb_seqs(id)
+    create_camp_positive_pdb_fasta_seqs(id)
+    create_camp_positive_uniprot_protein_seqs(id)
+
 if __name__ == "__main__":
     # create_gold_pdb_fasta_seq_input(id=0, select_positive=True)
-    # create_gold_pdb_fasta_seq_input(id=0, select_positive=0, check_natural=True)
-    # create_camp_positive_pdb_seqs()
-    # create_camp_positive_pdb_fasta_seqs()
+    # create_gold_pdb_fasta_seq_input(id=1, select_positive=0, check_natural=True)
     batch_create_gold_pdb_seq_input()
+
     # create_gold_human_pdb_fasta_seq_input()
+    
     pass
