@@ -11,9 +11,8 @@ existed_simple_sub_dirs = list(simple_out_dir.iterdir())
 
 
 for file_dir in orig_out_dir.iterdir():
-    if file_dir in existed_simple_sub_dirs: continue
     new_sub_dir = simple_out_dir / file_dir.name
-    new_sub_dir.mkdir()
+    new_sub_dir.mkdir(exist_ok=1)
     for file in file_dir.iterdir():
         if (file.stem.startswith('ranked_') and file.suffix == '.pdb') or file.stem == 'ranking_debug' or (
             file.stem == 'timings'
@@ -21,4 +20,4 @@ for file_dir in orig_out_dir.iterdir():
             new_file = new_sub_dir / file.name
             shutil.copyfile(file, new_file)
 
-        
+print('end')
