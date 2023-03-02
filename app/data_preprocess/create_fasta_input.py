@@ -109,9 +109,10 @@ def check_seq_pair_natural(pep_seq, prot_seq):
     return is_peq_seq_natural, is_prot_seq_natural
 
 
-def create_gold_human_pdb_fasta_seq_input(number=2, select_positive=True, check_natural=True):
-    """  Actually only postive, column names: prot_pdb_fasta_seq, pep_pdb_fasta_seq.
-    
+def create_gold_human_pdb_fasta_seq_input(number=3, select_positive=True, check_natural=True):
+    """
+    ['pdb_id', 'prot_chain', 'pep_chain', 'pep_pdb_fasta_seq', 'prot_pdb_fasta_seq']
+    len(df): 14
     Seq: prot first.
     """
     file = gold_human_mid_len_pos_pdb_fasta_seqs_natural_aa_file
@@ -136,6 +137,40 @@ def create_gold_human_pdb_fasta_seq_input(number=2, select_positive=True, check_
             out_file = out_dir / f'{pdb_id_prot}_{prot_chain}_{pdb_id_pep}_{pep_chain}_pdb_fasta_neg_human.fasta'
         pep_seq = row['pep_pdb_fasta_seq']
         prot_seq = row['prot_pdb_fasta_seq']
+        logger.info(f'{pdb_id_prot}_{prot_chain}_{pdb_id_pep}_{pep_chain}')
+        save_seq_pair(check_natural, prot_chain, pep_chain, pdb_id_prot, pdb_id_pep, out_file, pep_seq, prot_seq)
+
+
+def create_gold_human_pdb_fasta_and_uniprot_seq_input(number=3, select_positive=True, check_natural=True):
+    """  
+    ['pdb_id', 'prot_chain', 'pep_chain', 'pep_pdb_fasta_seq', 'prot_pdb_fasta_seq']
+    len(df): 14    
+    """
+    file = gold_human_mid_len_pos_pdb_fasta_seqs_natural_aa_file
+    if 'uniprot' not in file.stem:
+        file = file.with_name(f'{file.stem}_uniprot.csv')
+    
+    df = pd.read_csv(file)
+    ic(df.head(1))
+    ic(df.columns)
+    ic(len(df))
+
+    for id in range(number):
+        row = df.iloc[id]
+        prot_chain = row['prot_chain']
+        pep_chain = row['pep_chain']
+        if select_positive:
+            pdb_id_prot = row['pdb_id']
+            pdb_id_pep = pdb_id_prot
+            out_file = out_dir / f'{pdb_id_prot}_{prot_chain}_{pep_chain}_pos_human_uniprot.fasta'
+        else:
+            pdb_id_prot = row['pdb_id_prot']
+            pdb_id_pep = row['pdb_id_pep']
+            out_file = out_dir / f'{pdb_id_prot}_{prot_chain}_{pdb_id_pep}_{pep_chain}_neg_human_uniprot.fasta'
+        pep_seq = row['pep_pdb_fasta_seq']
+        prot_seq = row['uniprot_seq']
+        ic(len(pep_seq))
+        ic(len(prot_seq))
         logger.info(f'{pdb_id_prot}_{prot_chain}_{pdb_id_pep}_{pep_chain}')
         save_seq_pair(check_natural, prot_chain, pep_chain, pdb_id_prot, pdb_id_pep, out_file, pep_seq, prot_seq)
 
@@ -215,11 +250,12 @@ def create_create_camp_positive(id=2):
     create_camp_positive_pdb_fasta_seqs(id)
     create_camp_positive_uniprot_protein_seqs(id)
 
+
 if __name__ == "__main__":
     # create_gold_pdb_fasta_seq_input(id=0, select_positive=True)
     # create_gold_pdb_fasta_seq_input(id=1, select_positive=0, check_natural=True)
-    batch_create_gold_pdb_seq_input()
+    # batch_create_gold_pdb_seq_input()
 
-    # create_gold_human_pdb_fasta_seq_input()
-    
+    create_gold_human_pdb_fasta_seq_input()
+    # create_gold_human_pdb_fasta_and_uniprot_seq_input()
     pass

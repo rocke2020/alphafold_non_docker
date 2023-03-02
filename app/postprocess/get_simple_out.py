@@ -9,7 +9,6 @@ simple_out_dir = Path('/mnt/sdc/af_out_simple')
 simple_out_dir.mkdir(exist_ok=1)
 existed_simple_sub_dirs = list(simple_out_dir.iterdir())
 
-
 for file_dir in orig_out_dir.iterdir():
     new_sub_dir = simple_out_dir / file_dir.name
     new_sub_dir.mkdir(exist_ok=1)

@@ -8,7 +8,6 @@ from tqdm import tqdm
 from peptide_utils.pep_utils import is_natural_only_supper, aminoacids
 from peptide_utils.proteins.shared.protein import get_seq_from_pdb_file_pdb_parser
 from peptide_utils.aa_utils import basic_aa_3chars_to_1chars
-from typing import List
 
 
 pdb_files_dir = Path('data/pdb/pdb_files')
