@@ -256,6 +256,6 @@ if __name__ == "__main__":
     # create_gold_pdb_fasta_seq_input(id=1, select_positive=0, check_natural=True)
     # batch_create_gold_pdb_seq_input()
 
-    create_gold_human_pdb_fasta_seq_input()
-    # create_gold_human_pdb_fasta_and_uniprot_seq_input()
+    # create_gold_human_pdb_fasta_seq_input()
+    create_gold_human_pdb_fasta_and_uniprot_seq_input()
     pass
